@@ -3,12 +3,26 @@ import React, { useState } from 'react';
 const Contact = () => {
     const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = () => {
-        setSubmitted(true);
-        setTimeout(() => {
-            // Reset form after 3 seconds could be added here if needed
-            // But usually we just leave the success message
-        }, 1000);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        try {
+            await fetch('https://docs.google.com/forms/u/0/d/e/1FAIpQLScOIL3BpB9PlJJanC0oW4BHOzbE05CWeG7Y_vWIWvXzGq-9yA/formResponse', {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            });
+            setSubmitted(true);
+            form.reset();
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            // Even with error, in no-cors mode, it might be hard to tell. 
+            // But we assume success if it doesn't throw network error.
+            setSubmitted(true);
+        }
     };
 
     return (
@@ -28,54 +42,41 @@ const Contact = () => {
                         </button>
                     </div>
                 ) : (
-                    <>
-                        <iframe
-                            name="hidden_iframe"
-                            id="hidden_iframe"
-                            style={{ display: 'none' }}
-                            onLoad={() => { if (submitted) { /* logic if needed */ } }}
-                        ></iframe>
-                        <form
-                            action="https://docs.google.com/forms/u/0/d/e/1FAIpQLScOIL3BpB9PlJJanC0oW4BHOzbE05CWeG7Y_vWIWvXzGq-9yA/formResponse"
-                            method="POST"
-                            target="hidden_iframe"
-                            onSubmit={handleSubmit}
-                        >
-                            <div className="form-group">
-                                <label htmlFor="name" className="form-label">Name</label>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="entry.236926314"
-                                    className="form-input"
-                                    placeholder="Your Name"
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="email" className="form-label">Email</label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="entry.140979701"
-                                    className="form-input"
-                                    placeholder="your@email.com"
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="message" className="form-label">Message</label>
-                                <textarea
-                                    id="message"
-                                    name="entry.479230803"
-                                    className="form-textarea"
-                                    placeholder="How can I help you?"
-                                    required
-                                ></textarea>
-                            </div>
-                            <button type="submit" className="btn btn-submit">Send Message</button>
-                        </form>
-                    </>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="name" className="form-label">Name</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="entry.236926314"
+                                className="form-input"
+                                placeholder="Your Name"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="email" className="form-label">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="entry.140979701"
+                                className="form-input"
+                                placeholder="your@email.com"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="message" className="form-label">Message</label>
+                            <textarea
+                                id="message"
+                                name="entry.479230803"
+                                className="form-textarea"
+                                placeholder="How can I help you?"
+                                required
+                            ></textarea>
+                        </div>
+                        <button type="submit" className="btn btn-submit">Send Message</button>
+                    </form>
                 )}
             </div>
         </section>
